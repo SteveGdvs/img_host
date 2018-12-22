@@ -10,7 +10,6 @@ from voting.models import Vote
 def home(request):
 	images = Image.objects.all().order_by("-uploaded")[:10]
 
-	votes = Vote.objects.filter(image__in=images, user=request.user)
 	score_dict = {}
 	votes_dict = {}
 
@@ -18,6 +17,7 @@ def home(request):
 		score_dict[image.id] = image.score
 
 	if request.user.is_authenticated:
+		votes = Vote.objects.filter(image__in=images, user=request.user)
 		for vote in votes:
 			votes_dict[vote.image.id] = vote
 
@@ -29,9 +29,12 @@ def home(request):
 def view_image(request, image_id):
 	image = Image.objects.get(id=image_id)
 
-	try:
-		user_vote = Vote.objects.get(user=request.user, image=image)  # only the vote from the current user
-	except Vote.DoesNotExist:
+	if request.user.is_authenticated:
+		try:
+			user_vote = Vote.objects.get(user=request.user, image=image)  # only the vote from the current user
+		except Vote.DoesNotExist:
+			user_vote = None
+	else:
 		user_vote = None
 
 	context = {'image': image, 'user_vote': user_vote}
@@ -42,7 +45,6 @@ def view_image(request, image_id):
 def popular_images(request):
 	images = Image.objects.all().order_by("-score")
 
-	votes = Vote.objects.filter(image__in=images, user=request.user)
 	score_dict = {}
 	votes_dict = {}
 
@@ -50,6 +52,7 @@ def popular_images(request):
 		score_dict[image.id] = image.score
 
 	if request.user.is_authenticated:
+		votes = Vote.objects.filter(image__in=images, user=request.user)
 		for vote in votes:
 			votes_dict[vote.image.id] = vote
 
@@ -70,7 +73,6 @@ def latest_images(request):
 
 	images = Image.objects.all().order_by("-uploaded").filter(uploaded__gt=period)
 
-	votes = Vote.objects.filter(image__in=images, user=request.user)
 	score_dict = {}
 	votes_dict = {}
 
@@ -78,6 +80,7 @@ def latest_images(request):
 		score_dict[image.id] = image.score
 
 	if request.user.is_authenticated:
+		votes = Vote.objects.filter(image__in=images, user=request.user)
 		for vote in votes:
 			votes_dict[vote.image.id] = vote
 
@@ -123,7 +126,7 @@ def edit_image(request, image_id):
 			return redirect('images:image', image_id=image.id)
 	else:
 		image_form = ImageForm(instance=image)
-	context = {'image':image,'image_form': image_form}
+	context = {'image': image, 'image_form': image_form}
 	return render(request, "images/image_edit.html", context)
 
 
@@ -135,7 +138,6 @@ def search_image(request):
 	else:
 		images = Image.objects.all().filter(title__startswith=query)
 
-	votes = Vote.objects.filter(image__in=images, user=request.user)
 	score_dict = {}
 	votes_dict = {}
 
@@ -143,11 +145,10 @@ def search_image(request):
 		score_dict[image.id] = image.score
 
 	if request.user.is_authenticated:
+		votes = Vote.objects.filter(image__in=images, user=request.user)
 		for vote in votes:
 			votes_dict[vote.image.id] = vote
 
 	context = {'images': images, 'votes_dict': votes_dict, 'score_dict': score_dict}
 
 	return render(request, 'images/image_list.html', context)
-
-
