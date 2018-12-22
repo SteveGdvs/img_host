@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load get_item %}
+
+{% block content %}
+	{% if images %}
+		<h1>Today's Images!</h1>
+		{% for image in images %}
+			{% with user_vote=votes_dict|get_item:image.id score=score_dict|get_item:image.id %}
+				{% include 'images/img_post.html' %}
+			{% endwith %}
+		{% endfor %}
+	{% else %}
+		<p>No images uploaded yet :(</p>
+	{% endif %}
+{% endblock %}

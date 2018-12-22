@@ -1,0 +1,34 @@
+<div class="row my-5">
+	<div class="col">
+		<div class="card">
+			<div class="card-header">
+				<a href="{% url 'images:image' image.id %}"><h6>{{ image.title }} by {{ image.user }}</h6></a>
+			</div>
+			<div class="card-body">
+				<img class="img-fluid card-img" src="{{ image.img_file.url }}" alt="{{ image.img_file.name }}">
+			</div>
+			<div class="card-footer">
+				{% if  user.is_authenticated %}
+					{% if user_vote is None or user_vote.vote is None %}
+						<a class="card-link" href="javascript:like({{ image.id }})" id="like_{{ image.id }}"><span><i class="fas fa-arrow-up" aria-hidden="true"></i></span></a>
+						<a class="card-link" href="javascript:dislike({{ image.id }})" id="dislike_{{ image.id }}"><span><i class="fas fa-arrow-down" aria-hidden="true"></i></span></a>
+					{% else %}
+						{% if user_vote.vote is True %}
+							<a class="card-link text-success" href="javascript:like({{ image.id }})" id="like_{{ image.id }}"><span><i class="fas fa-arrow-up" aria-hidden="true"></i></span></a>
+							<a class="card-link" href="javascript:dislike({{ image.id }})" id="dislike_{{ image.id }}"><span><i class="fas fa-arrow-down" aria-hidden="true"></i></span></a>
+						{% elif user_vote.vote is False %}
+							<a class="card-link" href="javascript:like({{ image.id }})" id="like_{{ image.id }}"><span><i class="fas fa-arrow-up" aria-hidden="true"></i></span></a>
+							<a class="card-link text-danger" href="javascript:dislike({{ image.id }})" id="dislike_{{ image.id }}"><span><i class="fas fa-arrow-down" aria-hidden="true"></i></span></a>
+						{% endif %}
+					{% endif %}
+				{% else %}
+					<a class="card-link" data-toggle="tooltip" data-placement="bottom" title="You need to login" href="javascript:void(0)"><span><i class="fas fa-arrow-up" aria-hidden="true"></i></span></a>
+					<a class="card-link" data-toggle="tooltip" data-placement="bottom" title="You need to login" href="javascript:void(0)"><span><i class="fas fa-arrow-down" aria-hidden="true"></i></span></a>
+				{% endif %}
+
+				<span id="score_{{ image.id }}"> {{ image.score }}</span>
+				<span> on {{ image.uploaded }}</span>
+			</div>
+		</div>
+	</div>
+</div>
